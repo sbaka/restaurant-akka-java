@@ -1,4 +1,3 @@
-
 package com.restaurant.akka;
 
 import akka.actor.AbstractActor;
@@ -13,14 +12,13 @@ import java.util.List;
 /**
  * La classe Chef représente un acteur principal dans le système de restaurant.
  * Il est responsable de la réception des commandes des serveurs et de la
- * distribution
- * des tâches aux cuisiniers. Il peut également enregistrer de nouveaux
+ * distribution des tâches aux cuisiniers. Il peut également enregistrer de
+ * nouveaux
  * cuisiniers et serveurs.
  * 
  * <p>
  * Cette classe étend {@link AbstractActor} et utilise le modèle d'acteur d'Akka
- * pour
- * gérer les messages reçus.
+ * pour gérer les messages reçus.
  * </p>
  * 
  * <p>
@@ -32,6 +30,7 @@ import java.util.List;
  * cuisinier.</li>
  * <li>{@link RegisterWaiter} : Représente l'enregistrement d'un nouveau
  * serveur.</li>
+ * <li>{@link DishPrepared} : Représente un plat préparé par un cuisinier.</li>
  * </ul>
  * 
  * <p>
@@ -73,7 +72,7 @@ public class Chef extends AbstractActor {
 
     /**
      * Creates the receive behavior for the Chef actor.
-     * Handles Order, RegisterCook, and RegisterWaiter messages.
+     * Handles Order, RegisterCook, RegisterWaiter, and DishPrepared messages.
      *
      * @return Receive object defining the message handling behavior.
      */
@@ -81,16 +80,28 @@ public class Chef extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(Order.class, order -> {
-                    log.info("Le Chef a reçu une commande du serveur: {}", order);
-                    // Distribute order to cooks
+                    log.info("Le Chef a reçu une commande du serveur: {}", order.dish);
+                    if (!cooks.isEmpty()) {
+                        // Distribute order to the first available cook
+                        ActorRef cook = cooks.get(0);
+                        cook.tell(order, getSender());
+                        log.info("Commande distribuée au cuisinier: {}", cook);
+                    } else {
+                        log.warning("Aucun cuisinier disponible pour la commande: {}", order.dish);
+                    }
                 })
                 .match(RegisterCook.class, cook -> {
                     cooks.add(cook.cook);
-                    log.info("Cook registered: {}", cook.cook);
+                    log.info("Cuisinier enregistré: {}", cook.cook);
                 })
                 .match(RegisterWaiter.class, waiter -> {
                     waiters.add(waiter.waiter);
-                    log.info("Waiter registered: {}", waiter.waiter);
+                    log.info("Serveur enregistré: {}", waiter.waiter);
+                })
+                .match(DishPrepared.class, dishPrepared -> {
+                    log.info("Plat préparé: {} par {}", dishPrepared.dish, dishPrepared.cook);
+                    // Send the prepared dish back to the waiter
+                    dishPrepared.waiter.tell(dishPrepared, getSelf());
                 })
                 .build();
     }
@@ -140,6 +151,28 @@ public class Chef extends AbstractActor {
          * @param waiter The actor reference of the waiter to be registered.
          */
         public RegisterWaiter(ActorRef waiter) {
+            this.waiter = waiter;
+        }
+    }
+
+    /**
+     * Represents a message indicating a dish has been prepared.
+     */
+    static public class DishPrepared {
+        public final String dish;
+        public final ActorRef cook;
+        public final ActorRef waiter;
+
+        /**
+         * Constructs a DishPrepared message with the specified dish, cook, and waiter.
+         *
+         * @param dish   The name of the dish.
+         * @param cook   The actor reference of the cook who prepared the dish.
+         * @param waiter The actor reference of the waiter who will serve the dish.
+         */
+        public DishPrepared(String dish, ActorRef cook, ActorRef waiter) {
+            this.dish = dish;
+            this.cook = cook;
             this.waiter = waiter;
         }
     }
