@@ -26,7 +26,7 @@ Le projet est structuré comme suit :
 1. Cloner le dépôt :
 
    ```sh
-   git clone [https://github.com/sbaka/restaurant-akka-java](https://github.com/sbaka/restaurant-akka-java)
+   git clone https://github.com/sbaka/restaurant-akka-java
    cd restaurant-akka-java
    ```
 
