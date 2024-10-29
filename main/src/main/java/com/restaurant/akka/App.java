@@ -11,7 +11,6 @@ public class App {
     public static void main(String[] args) {
         ActorSystem system = ActorSystem.create("RestaurantSystem");
         ActorRef chef = system.actorOf(Chef.props(), "chef");
-
         // TODO: ajouter les autres acteurs
     }
 }
