@@ -26,8 +26,8 @@ Le projet est structuré comme suit :
 1. Cloner le dépôt :
 
    ```sh
-   git clone <URL_DU_DEPOT>
-   cd <NOM_DU_DEPOT>
+   git clone [https://github.com/sbaka/restaurant-akka-java](https://github.com/sbaka/restaurant-akka-java)
+   cd restaurant-akka-java
    ```
 
 2. Compiler le projet avec Maven :
