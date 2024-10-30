@@ -83,7 +83,7 @@ public class Waiter extends AbstractActor {
                 })
                 // Recevoir le plat préparé du chef
                 .match(Chef.DishPrepared.class, dishPrepared -> {
-                    log.info("Le serveur a récupéré le plat préparé: {} par {}", dishPrepared.dish, dishPrepared.cook);
+                    log.info("Le serveur a récupéré le plat préparé: {} par {}", dishPrepared.dish, dishPrepared.cookName);
                     // Transmettre le plat au client
                     //dishPrepared.client.tell(new Client.DishServed(dishPrepared.dish), getSelf());
                     log.info("Le plat {} a été servi au client.", dishPrepared.dish);
