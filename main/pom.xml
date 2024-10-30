@@ -11,6 +11,8 @@
 
   <properties>
     <scala.binary.version>2.13</scala.binary.version>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
   </properties>
 
   <dependencies>
@@ -31,7 +33,6 @@
       <version>1.7.32</version>
     </dependency>
   </dependencies>
-
   <repositories>
     <repository>
       <id>akka-repository</id>

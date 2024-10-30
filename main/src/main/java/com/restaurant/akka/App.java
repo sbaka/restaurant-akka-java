@@ -12,6 +12,7 @@ import akka.actor.ActorRef;
 public class App {
     public static void main(String[] args) {
         ActorSystem system = ActorSystem.create("RestaurantSystem");
+
         ActorRef chefActorRef = system.actorOf(Chef.props(), "chef");
 
         ActorRef waiterActorRef = system.actorOf(Waiter.props(chefActorRef), "waiter");
@@ -23,5 +24,6 @@ public class App {
 
         // Fin du programme
         system.terminate();
+
     }
 }

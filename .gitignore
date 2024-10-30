@@ -1,0 +1,5 @@
+# Ignore IDE configuration files
+.idea/
+
+# Ignore Maven/Gradle build output
+target/
