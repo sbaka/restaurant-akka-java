@@ -8,6 +8,7 @@ import akka.event.LoggingAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * La classe Chef représente un acteur principal dans le système de restaurant.
@@ -60,6 +61,7 @@ public class Chef extends AbstractActor {
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
     private final List<ActorRef> cooks = new ArrayList<>();
     private final List<ActorRef> waiters = new ArrayList<>();
+    private final Random random = new Random();
 
     /**
      * Creates and returns Props for creating a Chef actor.
@@ -83,23 +85,23 @@ public class Chef extends AbstractActor {
                     log.info("Le Chef a reçu une commande du serveur: {}", order.dish);
                     if (!cooks.isEmpty()) {
                         // Distribute order to the first available cook
-                        ActorRef cook = cooks.get(0);
-                        cook.tell(order, getSender());
-                        log.info("Commande distribuée au cuisinier: {}", cook);
+                        ActorRef cook = cooks.get(random.nextInt(cooks.size()));
+                        log.info("Commande distribuée au cuisinier: {}", cook.path().name());
+                        cook.tell(new Cook.PrepareDish(order.dish, getSender()), getSelf());
                     } else {
                         log.warning("Aucun cuisinier disponible pour la commande: {}", order.dish);
                     }
                 })
                 .match(RegisterCook.class, cook -> {
                     cooks.add(cook.cook);
-                    log.info("Cuisinier enregistré: {}", cook.cook);
+                    log.info("Cuisinier enregistré: {}", cook.cook.path().name());
                 })
                 .match(RegisterWaiter.class, waiter -> {
                     waiters.add(waiter.waiter);
                     log.info("Serveur enregistré: {}", waiter.waiter);
                 })
                 .match(DishPrepared.class, dishPrepared -> {
-                    log.info("Plat préparé: {} par {}", dishPrepared.dish, dishPrepared.cook);
+                    log.info("Plat préparé: {} par {}", dishPrepared.dish, dishPrepared.cookName);
                     // Send the prepared dish back to the waiter
                     dishPrepared.waiter.tell(dishPrepared, getSelf());
                 })
@@ -160,19 +162,19 @@ public class Chef extends AbstractActor {
      */
     static public class DishPrepared {
         public final String dish;
-        public final ActorRef cook;
+        public final String cookName;
         public final ActorRef waiter;
 
         /**
          * Constructs a DishPrepared message with the specified dish, cook, and waiter.
          *
          * @param dish   The name of the dish.
-         * @param cook   The actor reference of the cook who prepared the dish.
+         * @param cookName   The name of the cook who prepared the dish.
          * @param waiter The actor reference of the waiter who will serve the dish.
          */
-        public DishPrepared(String dish, ActorRef cook, ActorRef waiter) {
+        public DishPrepared(String dish, String cookName, ActorRef waiter) {
             this.dish = dish;
-            this.cook = cook;
+            this.cookName = cookName;
             this.waiter = waiter;
         }
     }
