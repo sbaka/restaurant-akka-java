@@ -12,18 +12,13 @@ import akka.actor.ActorRef;
 public class App {
     public static void main(String[] args) {
         ActorSystem system = ActorSystem.create("RestaurantSystem");
+        ActorRef chef = system.actorOf(Chef.props(), "chef");
 
-        ActorRef chefActorRef = system.actorOf(Chef.props(), "chef");
+        ActorRef waiter = system.actorOf(Waiter.props(chef), "waiter");
+        ActorRef client = system.actorOf(Client.props(waiter), "client");
 
-        ActorRef waiterActorRef = system.actorOf(Waiter.props(chefActorRef), "waiter");
+        //chef.tell(new Chef.RegisterWaiter(waiter), ActorRef.noSender());
 
-        chefActorRef.tell(new Chef.RegisterWaiter(waiterActorRef), ActorRef.noSender());
-
-
-        waiterActorRef.tell("Pasta", ActorRef.noSender());
-
-        // Fin du programme
-        system.terminate();
-
+        //client.tell(new Client.StartOrder(), ActorRef.noSender());
     }
 }
