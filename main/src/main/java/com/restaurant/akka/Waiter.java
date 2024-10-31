@@ -76,19 +76,29 @@ public class Waiter extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 // Prendre une commande d'un client et la transmettre au Chef
-                .match(Chef.Order.class, order -> {
+                .match(Waiter.Order.class, order -> {
                     log.info("Le serveur a reçu une commande pour: {}", order.dish);
-                    chef.tell(new Chef.Order(order.dish), getSelf());
-                    //chef.tell(new Chef.Order(order.dish, order.client), getSelf());
+                    // chef.tell(new Chef.Order(order.dish, getSelf()), getSelf());
+                    chef.tell(new Chef.Order(order.dish, getSelf(),order.client), getSelf());
                 })
                 // Recevoir le plat préparé du chef
                 .match(Chef.DishPrepared.class, dishPrepared -> {
-                    log.info("Le serveur a récupéré le plat préparé: {} par {}", dishPrepared.dish, dishPrepared.cookName);
+                    log.info("Le serveur a récupéré le plat préparé: {} par {} pour le client {}", dishPrepared.dish, dishPrepared.cookName, dishPrepared.client);
                     // Transmettre le plat au client
                     //dishPrepared.client.tell(new Client.DishServed(dishPrepared.dish), getSelf());
                     log.info("Le plat {} a été servi au client.", dishPrepared.dish);
 
                     })
                 .build();
+    }
+
+    static public class Order {
+        public final String dish;
+        public final ActorRef client;
+
+        public Order(String dish, ActorRef client) {
+            this.dish = dish;
+            this.client = client;
+        }
     }
 }

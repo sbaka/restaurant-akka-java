@@ -82,12 +82,13 @@ public class Chef extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(Order.class, order -> {
-                    log.info("Le Chef a reçu une commande du serveur: {}", order.dish);
+                    log.info("Le Chef a reçu une commande du serveur: {}", order.waiter);
+                    log.info("Le Chef a reçu une commande du : {}", order.dish);
                     if (!cooks.isEmpty()) {
                         // Distribute order to the first available cook
                         ActorRef cook = cooks.get(random.nextInt(cooks.size()));
                         log.info("Commande distribuée au cuisinier: {}", cook.path().name());
-                        cook.tell(new Cook.PrepareDish(order.dish, getSender()), getSelf());
+                        cook.tell(new Cook.PrepareDish(order.dish, order.waiter, order.client), getSelf());
                     } else {
                         log.warning("Aucun cuisinier disponible pour la commande: {}", order.dish);
                     }
@@ -113,14 +114,18 @@ public class Chef extends AbstractActor {
      */
     static public class Order {
         public final String dish;
+        public final ActorRef waiter;
+        public final ActorRef client;
 
         /**
          * Constructs an Order with the specified dish.
          *
          * @param dish The name of the dish.
          */
-        public Order(String dish) {
+        public Order(String dish, ActorRef waiter, ActorRef client) {
             this.dish = dish;
+            this.waiter = waiter;
+            this.client = client;
         }
     }
 
@@ -164,18 +169,20 @@ public class Chef extends AbstractActor {
         public final String dish;
         public final String cookName;
         public final ActorRef waiter;
+        public final ActorRef client;
 
         /**
          * Constructs a DishPrepared message with the specified dish, cook, and waiter.
          *
-         * @param dish   The name of the dish.
-         * @param cookName   The name of the cook who prepared the dish.
-         * @param waiter The actor reference of the waiter who will serve the dish.
+         * @param dish     The name of the dish.
+         * @param cookName The name of the cook who prepared the dish.
+         * @param waiter   The actor reference of the waiter who will serve the dish.
          */
-        public DishPrepared(String dish, String cookName, ActorRef waiter) {
+        public DishPrepared(String dish, String cookName, ActorRef waiter, ActorRef client) {
             this.dish = dish;
             this.cookName = cookName;
             this.waiter = waiter;
+            this.client = client;
         }
     }
 }

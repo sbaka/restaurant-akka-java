@@ -24,7 +24,7 @@ public class Cook extends AbstractActor {
                 .match(PrepareDish.class, prepareDish -> {
                     log.info("Le cuisinier {} prépare le plat: {}", name, prepareDish.dish);
                     Thread.sleep(1000); // Simulation d'un délai de préparation
-                    getSender().tell(new Chef.DishPrepared(prepareDish.dish, name, prepareDish.waiter), getSelf());
+                    getSender().tell(new Chef.DishPrepared(prepareDish.dish, name, prepareDish.waiter, prepareDish.client), getSelf());
                 })
                 .build();
     }
@@ -32,10 +32,12 @@ public class Cook extends AbstractActor {
     public static class PrepareDish {
         public final String dish;
         public final ActorRef waiter;
+        public final ActorRef client;
 
-        public PrepareDish(String dish, ActorRef waiter) {
+        public PrepareDish(String dish, ActorRef waiter, ActorRef client) {
             this.dish = dish;
             this.waiter = waiter;
+            this.client = client;
         }
     }
 }
