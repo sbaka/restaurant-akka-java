@@ -77,17 +77,15 @@ public class Waiter extends AbstractActor {
         return receiveBuilder()
                 // Prendre une commande d'un client et la transmettre au Chef
                 .match(Waiter.Order.class, order -> {
-                    log.info("Le serveur a reçu une commande pour: {}", order.dish);
+                    log.info("Le serveur {} a reçu une commande pour: {}", getSelf().path().name() ,order.dish);
                     // chef.tell(new Chef.Order(order.dish, getSelf()), getSelf());
                     chef.tell(new Chef.Order(order.dish, getSelf(),order.client), getSelf());
                 })
                 // Recevoir le plat préparé du chef
                 .match(Chef.DishPrepared.class, dishPrepared -> {
-                    log.info("Le serveur a récupéré le plat préparé: {} par {} pour le client {}", dishPrepared.dish, dishPrepared.cookName, dishPrepared.client);
+                    log.info("Le serveur {} a récupéré le plat préparé: {} par {} pour le client {}", getSelf().path().name() , dishPrepared.dish, dishPrepared.cookName, dishPrepared.client.path().name());
                     // Transmettre le plat au client
-                    //dishPrepared.client.tell(new Client.DishServed(dishPrepared.dish), getSelf());
-                    log.info("Le plat {} a été servi au client.", dishPrepared.dish);
-
+                    dishPrepared.client.tell(new Client.DishServed(dishPrepared.dish), getSelf());
                     })
                 .build();
     }

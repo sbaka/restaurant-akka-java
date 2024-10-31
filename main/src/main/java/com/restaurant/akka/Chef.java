@@ -82,8 +82,8 @@ public class Chef extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(Order.class, order -> {
-                    log.info("Le Chef a reçu une commande du serveur: {}", order.waiter);
-                    log.info("Le Chef a reçu une commande du : {}", order.dish);
+                    log.info("Le Chef a reçu une commande du serveur: {}", order.waiter.path().name());
+                    log.info("Le Chef a reçu une commande de : {}", order.dish);
                     if (!cooks.isEmpty()) {
                         // Distribute order to the first available cook
                         ActorRef cook = cooks.get(random.nextInt(cooks.size()));
@@ -99,7 +99,7 @@ public class Chef extends AbstractActor {
                 })
                 .match(RegisterWaiter.class, waiter -> {
                     waiters.add(waiter.waiter);
-                    log.info("Serveur enregistré: {}", waiter.waiter);
+                    log.info("Serveur enregistré: {}", waiter.waiter.path().name());
                 })
                 .match(DishPrepared.class, dishPrepared -> {
                     log.info("Plat préparé: {} par {}", dishPrepared.dish, dishPrepared.cookName);

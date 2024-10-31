@@ -38,12 +38,12 @@ public class Client extends AbstractActor {
                 .match(StartOrder.class, start -> {
                     // Le client choisit un plat aléatoire et le commande au serveur
                     String dish = dishes[random.nextInt(dishes.length)];
-                    log.info("Client passe une commande pour: {}", dish);
+                    log.info("Le client {} passe une commande pour: {}", getSelf().path().name() ,dish);
                     // le client passe la commande au serveur, le serveur transmettra la commande au chef
                     waiter.tell(new Waiter.Order(dish, getSelf()), getSelf());
                 })
                 .match(DishServed.class, dishServed -> {
-                    log.info("Client a reçu son plat: {}", dishServed.dish);
+                    log.info("Le client {} a reçu son plat: {}", getSelf().path().name(), dishServed.dish);
                 })
                 .build();
     }

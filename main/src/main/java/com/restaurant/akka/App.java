@@ -32,7 +32,7 @@ public class App {
         }
 
         Runnable clientOrders = () -> {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 5; i++) {
                 String clientName = "Client_" + (i + 1);
                 ActorRef client = system.actorOf(Client.props(waiters[i % 3]), clientName);
                 for (int j = 0; j < 3; j++) {
