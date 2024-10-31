@@ -11,20 +11,17 @@ import java.util.Random;
 public class Client extends AbstractActor {
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
     private final ActorRef waiter;
+    private final String name;
     private final String[] dishes =  {"Pasta", "Pizza", "Salad", "Burger", "Soup"};
     private final Random random = new Random();
 
-    public Client(ActorRef waiter) {
+    public Client(ActorRef waiter, String name) {
         this.waiter = waiter;
+        this.name = name;
     }
 
-    /**
-     * Méthode statique pour initialiser l'acteur Client.
-     * @param waiter Le serveur associé au client.
-     * @return Props pour créer un acteur Client.
-     */
-    public static Props props(ActorRef waiter) {
-        return Props.create(Client.class, () -> new Client(waiter));
+    public static Props props(ActorRef waiter, String name) {
+        return Props.create(Client.class, () -> new Client(waiter, name));
     }
 
     /**
@@ -38,11 +35,11 @@ public class Client extends AbstractActor {
                 .match(StartOrder.class, start -> {
                     // Le client choisit un plat aléatoire et le commande au serveur
                     String dish = dishes[random.nextInt(dishes.length)];
-                    log.info("Client passe une commande pour: {}", dish);
+                    log.info("Client {} passe une commande pour: {}", name, dish);
                     waiter.tell(new Chef.Order(dish), getSelf());
                 })
                 .match(DishServed.class, dishServed -> {
-                    log.info("Client a reçu son plat: {}", dishServed.dish);
+                    log.info("Client {} a reçu son plat: {}", name, dishServed.dish);
                 })
                 .build();
     }

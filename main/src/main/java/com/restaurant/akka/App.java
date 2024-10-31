@@ -19,16 +19,17 @@ public class App {
 
 
         ActorRef waiter = system.actorOf(Waiter.props(chef), "waiter");
-        ActorRef client = system.actorOf(Client.props(waiter), "client");
-
+        ActorRef client1 = system.actorOf(Client.props(waiter, "Client 1"), "client-1");
+        ActorRef client2 = system.actorOf(Client.props(waiter, "Client 2"), "client-2");
+        ActorRef client3 = system.actorOf(Client.props(waiter, "Client 3"), "client-3");
 
         chef.tell(new Chef.RegisterWaiter(waiter), ActorRef.noSender());
 
         chef.tell(new Chef.RegisterCook(cook1), ActorRef.noSender());
         chef.tell(new Chef.RegisterCook(cook2), ActorRef.noSender());
 
-        client.tell(new Client.StartOrder(), ActorRef.noSender());
-        client.tell(new Client.StartOrder(), ActorRef.noSender());
-        client.tell(new Client.StartOrder(), ActorRef.noSender());
+        client1.tell(new Client.StartOrder(), ActorRef.noSender());
+        client2.tell(new Client.StartOrder(), ActorRef.noSender());
+        client3.tell(new Client.StartOrder(), ActorRef.noSender());
     }
 }
